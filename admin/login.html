@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071a3d">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Espace équipe — NovaTech Cameroun</title>
+  <meta name="description" content="Console interne NovaTech : commandes WhatsApp, catalogue et stock. Accès réservé au personnel autorisé.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/pages/admin.css">
+</head>
+<body class="admin-login-body">
+  <main class="admin-login">
+    <section class="admin-login__brand" aria-hidden="true">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark"><span class="material-symbols-outlined">bolt</span></span>
+        <span>NovaTech</span>
+      </a>
+      <h1 data-i18n="admin.login.brandTitle">Le pilotage du commerce WhatsApp.</h1>
+      <p data-i18n="admin.login.brandSub">Commandes en direct, stock par hub et vérification MoMo depuis une seule console.</p>
+      <ul class="admin-login__points">
+        <li><span class="material-symbols-outlined">forum</span><span data-i18n="admin.login.point1">Pipeline de chats WhatsApp en temps réel</span></li>
+        <li><span class="material-symbols-outlined">verified_user</span><span data-i18n="admin.login.point2">RBAC granulaire et piste d'audit immuable</span></li>
+        <li><span class="material-symbols-outlined">warehouse</span><span data-i18n="admin.login.point3">Stock Akwa & Bastos synchronisé</span></li>
+      </ul>
+    </section>
+
+    <section class="admin-login__panel">
+      <div class="admin-login__card">
+        <div class="admin-login__top">
+          <span class="admin-login__lock"><span class="material-symbols-outlined">shield_person</span></span>
+          <div class="lang-toggle" role="group" aria-label="Langue">
+            <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+            <button type="button" data-lang="en" aria-pressed="false">EN</button>
+          </div>
+        </div>
+
+        <h2 data-i18n="admin.login.title">Espace équipe NovaTech</h2>
+        <p class="admin-login__sub" data-i18n="admin.login.sub">Accès réservé au personnel autorisé. Aucune inscription publique.</p>
+
+        <form class="admin-login__form" id="staff-login" novalidate>
+          <div class="field">
+            <label class="field__label" for="staff-email" data-i18n="admin.login.email">E-mail professionnel</label>
+            <input class="input" id="staff-email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="admin@novatech.cm" required>
+          </div>
+          <div class="field">
+            <label class="field__label" for="staff-password" data-i18n="admin.login.password">Mot de passe</label>
+            <input class="input" id="staff-password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+
+          <div class="admin-login__error" id="login-error" role="alert" hidden></div>
+
+          <button class="btn btn--primary btn--block" type="submit" id="login-submit">
+            <span class="material-symbols-outlined">login</span>
+            <span data-i18n="admin.login.submit">Se connecter</span>
+          </button>
+        </form>
+
+        <div class="admin-login__demo">
+          <b data-i18n="admin.login.demo">Accès démo</b>
+          <span data-i18n="admin.login.demoHint">admin@novatech.cm / NovaTech2026!</span>
+        </div>
+
+        <p class="admin-login__policy">
+          <span class="material-symbols-outlined">lock</span>
+          <span data-i18n="admin.login.noRegister">Politique zéro auto-inscription. Contactez un Super Admin.</span>
+        </p>
+
+        <p class="admin-login__foot">
+          <a href="../index.html" data-i18n="admin.backToStore">Retour à la boutique</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="../js/pages/admin-login.js"></script>
+</body>
+</html>

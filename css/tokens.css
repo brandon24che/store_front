@@ -1,0 +1,119 @@
+/* ==========================================================================
+   NovaTech — "Nordic Precision Tech" design tokens
+   Every colour, radius, shadow and font used by the product lives here.
+   ========================================================================== */
+
+:root {
+  /* --- Surfaces (Material tonal scale) --------------------------------- */
+  --surface: #faf8ff;
+  --surface-bright: #ffffff;
+  --surface-lowest: #ffffff;
+  --surface-low: #f2f3ff;
+  --surface-container: #eaedff;
+  --surface-high: #e2e7ff;
+  --surface-highest: #dae2fd;
+
+  /* Structural neutrals used for product staging and input wells */
+  --layer-01: #f8fafc;
+  --layer-02: #f1f5f9;
+  --divider: #e2e8f0;
+
+  /* --- Text ------------------------------------------------------------ */
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --on-primary: #ffffff;
+
+  /* --- Accents --------------------------------------------------------- */
+  --primary: #0062ff;
+  --primary-hover: #0052d6;
+  --primary-ink: #004cca;
+  --primary-wash: rgba(0, 98, 255, 0.08);
+  --primary-wash-strong: rgba(0, 98, 255, 0.14);
+  --ice: #00d2d3;
+  --ice-wash: rgba(0, 210, 211, 0.14);
+  --sky: #38bdf8;
+  --teal: #006a6a;
+  --teal-hover: #005757;
+  --teal-wash: rgba(0, 106, 106, 0.09);
+  --whatsapp: #25d366;
+  --danger: #ba1a1a;
+  --danger-wash: #ffdad6;
+  --warning: #b45309;
+  --warning-wash: #fef3c7;
+  --success: #047857;
+  --success-wash: #d1fae5;
+
+  /* --- Type ------------------------------------------------------------ */
+  --font-headline: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --fs-display: 36px;      --lh-display: 44px;
+  --fs-h1: 28px;           --lh-h1: 36px;
+  --fs-h2: 24px;           --lh-h2: 32px;
+  --fs-h3: 20px;           --lh-h3: 28px;
+  --fs-h4: 17px;           --lh-h4: 24px;
+  --fs-body-lg: 18px;      --lh-body-lg: 28px;
+  --fs-body: 15px;         --lh-body: 24px;
+  --fs-sm: 13.5px;         --lh-sm: 20px;
+  --fs-label: 13px;        --lh-label: 18px;
+  --fs-micro: 11px;        --lh-micro: 14px;
+
+  /* --- Shape ----------------------------------------------------------- */
+  --r-sm: 4px;
+  --r: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-full: 9999px;
+
+  /* --- Elevation ------------------------------------------------------- */
+  --shadow-flat: 0 1px 3px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --shadow-raised: 0 12px 32px -4px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.02);
+  --shadow-overlay: 0 24px 64px -12px rgba(15, 23, 42, 0.12), 0 8px 24px -4px rgba(15, 23, 42, 0.04);
+  --focus-ring: 0 0 0 3px rgba(0, 98, 255, 0.15);
+  --shadow-primary: 0 4px 14px rgba(0, 98, 255, 0.3);
+
+  /* --- Layout ---------------------------------------------------------- */
+  --container: 1440px;
+  --gutter: 16px;
+  --section-gap: 40px;
+  --header-h: 64px;
+  --bottomnav-h: 64px;
+
+  /* --- Motion ---------------------------------------------------------- */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur: 220ms;
+  --dur-slow: 320ms;
+
+  /* --- z-index --------------------------------------------------------- */
+  --z-header: 50;
+  --z-nav: 45;
+  --z-scrim: 90;
+  --z-sheet: 95;
+  --z-toast: 120;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --section-gap: 56px;
+    --fs-display: 48px;  --lh-display: 56px;
+    --fs-h1: 38px;       --lh-h1: 46px;
+    --fs-h2: 28px;       --lh-h2: 36px;
+    --fs-h3: 22px;       --lh-h3: 30px;
+    --header-h: 72px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 48px;
+    --section-gap: 72px;
+    --fs-display: 56px;  --lh-display: 64px;
+    --fs-h1: 44px;       --lh-h1: 52px;
+    --fs-h2: 32px;       --lh-h2: 40px;
+    --fs-h3: 24px;       --lh-h3: 32px;
+  }
+}

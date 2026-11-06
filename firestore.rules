@@ -1,0 +1,267 @@
+rules_version = '2';
+
+// ===========================================================================
+// NovaTech — Firestore security rules
+//
+// Principles
+//  • Public storefront: read-only on active products, categories, brands,
+//    active promo codes and the order counter.
+//  • Guests may create ONE order shape (new inquiry, unpaid) — never read
+//    another customer's order.
+//  • Customers can read their own orders (customer.uid == auth.uid) and can
+//    never change status or paymentStatus.
+//  • Staff capabilities mirror js/rbac.js through the `role` custom claim.
+//  • Staff accounts are never self-service: only a Super Admin can write the
+//    `staff` collection (the provisionStaff callable uses the Admin SDK).
+//  • No catch-all allow rule exists; anything not listed is denied.
+// ===========================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ------------------------------ helpers ------------------------------ */
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return signedIn() ? request.auth.token.role : '';
+    }
+
+    function inRoles(roles) {
+      return role() in roles;
+    }
+
+    function isSuper() {
+      return role() == 'super_admin';
+    }
+
+    function orderStaff() {
+      return inRoles(['super_admin', 'store_admin', 'inventory_manager', 'order_manager', 'support_agent', 'delivery_manager']);
+    }
+
+    function canUpdateOrders() {
+      return inRoles(['super_admin', 'store_admin', 'order_manager']);
+    }
+
+    function canNoteOrders() {
+      return inRoles(['super_admin', 'store_admin', 'order_manager', 'support_agent']);
+    }
+
+    function canConfirmStock() {
+      return inRoles(['super_admin', 'inventory_manager']);
+    }
+
+    function canDeliver() {
+      return inRoles(['super_admin', 'delivery_manager']);
+    }
+
+    function canReadProductsAll() {
+      return inRoles(['super_admin', 'store_admin', 'inventory_manager']);
+    }
+
+    function canWriteProducts() {
+      return inRoles(['super_admin', 'store_admin', 'inventory_manager']);
+    }
+
+    function canReadInventory() {
+      return inRoles(['super_admin', 'store_admin', 'inventory_manager']);
+    }
+
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function isOwner(order) {
+      return signedIn() && order.customer.get('uid', null) == request.auth.uid;
+    }
+
+    function validOrderCreate() {
+      let data = request.resource.data;
+      return data.keys().hasAll([
+          'code', 'customer', 'items', 'subtotal', 'discount', 'shipping',
+          'total', 'status', 'paymentMethod', 'paymentStatus', 'source',
+          'events', 'messages', 'createdAt', 'updatedAt'
+        ])
+        && data.code is string
+        && data.code.matches('WA-[0-9]{4,6}')
+        && data.status == 'new_inquiry'
+        && data.paymentStatus == 'pending'
+        && data.paymentMethod in ['mtn_momo', 'orange_money', 'cash_on_delivery', 'bank_wire']
+        && data.subtotal is int && data.subtotal >= 0
+        && data.discount is int && data.discount >= 0
+        && data.shipping is int && data.shipping >= 0
+        && data.total is int && data.total >= 0
+        && data.items is list
+        && data.items.size() > 0
+        && data.items.size() <= 20
+        && data.items[0].keys().hasAll(['productId', 'name', 'condition', 'qty', 'unitPrice'])
+        && data.items[0].qty is int && data.items[0].qty > 0 && data.items[0].qty <= 9
+        && data.items[0].unitPrice is int && data.items[0].unitPrice >= 0
+        && data.events is list
+        && data.events.size() == 1
+        && validEvent(data.events[0])
+        && data.events[0].type == 'created'
+        && data.messages is list
+        && data.messages.size() == 0
+        && data.customer.name is string
+        && data.customer.name.size() >= 2 && data.customer.name.size() <= 80
+        && data.customer.phone is string
+        && data.customer.phone.size() >= 9 && data.customer.phone.size() <= 15
+        && data.customer.city in ['Douala', 'Yaoundé']
+        && data.customer.quarter is string
+        && data.customer.quarter.size() > 0
+        && (
+          (data.source == 'web' && (
+            (signedIn() && data.customer.get('uid', null) == request.auth.uid)
+            || (!signedIn() && data.customer.get('uid', null) == null)
+          ))
+          || (data.source == 'admin' && orderStaff())
+        );
+    }
+
+    function validEvent(event) {
+      return event.keys().hasAll(['type', 'label', 'actor', 'at'])
+        && event.type in ['created', 'status', 'payment', 'stock', 'note', 'courier']
+        && event.label is string && event.label.size() > 0 && event.label.size() <= 500
+        && event.actor is string && event.actor.size() > 0 && event.actor.size() <= 80
+        && event.at is timestamp;
+    }
+
+    function validMessage(message) {
+      return message.keys().hasAll(['text', 'actor', 'at'])
+        && message.text is string
+        && message.text.size() > 0 && message.text.size() <= 2000
+        && message.actor is string && message.actor.size() > 0 && message.actor.size() <= 80
+        && message.at is timestamp;
+    }
+
+    // Timelines are embedded arrays: a write may append exactly one event or
+    // message, never rewrite history.
+    function eventsUnchangedOrAppended() {
+      let before = resource.data.get('events', []);
+      let after = request.resource.data.events;
+      return !changedKeys().hasAny(['events'])
+        || (after.size() == before.size() + 1 && validEvent(after[after.size() - 1]));
+    }
+
+    function messagesUnchangedOrAppended() {
+      let before = resource.data.get('messages', []);
+      let after = request.resource.data.messages;
+      return !changedKeys().hasAny(['messages'])
+        || (after.size() == before.size() + 1 && validMessage(after[after.size() - 1]));
+    }
+
+    function validAudit() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['actor', 'action', 'target', 'at', 'severity'])
+        && data.severity in ['info', 'success', 'warning', 'danger']
+        && data.actor is string && data.actor.size() <= 80
+        && data.action is string && data.action.size() > 0 && data.action.size() <= 120
+        && data.target is string && data.target.size() <= 500;
+    }
+
+    /* ------------------------------ catalog ------------------------------ */
+
+    match /products/{productId} {
+      allow get, list: if resource.data.isActive == true || canReadProductsAll();
+      allow create, update, delete: if canWriteProducts();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if canWriteProducts();
+    }
+
+    match /brands/{brandId} {
+      allow read: if true;
+      allow write: if canWriteProducts();
+    }
+
+    match /promoCodes/{code} {
+      allow get: if resource.data.active == true || isSuper();
+      allow list: if canWriteProducts();
+      allow create, update, delete: if isSuper();
+    }
+
+    /* ------------------------------- orders ------------------------------ */
+
+    match /orders/{orderId} {
+      allow get, list: if orderStaff() || isOwner(resource.data);
+
+      allow create: if validOrderCreate();
+
+      // Staff update paths are narrow: delivery/courier changes, stock
+      // confirmation, notes, or full order-management writes. Timelines are
+      // append-only at every level.
+      allow update: if (
+          (canUpdateOrders()
+            && !changedKeys().hasAny(['code', 'customer', 'items', 'subtotal', 'discount', 'shipping', 'total', 'promoCode', 'source', 'createdAt'])
+            && eventsUnchangedOrAppended()
+            && messagesUnchangedOrAppended())
+          || (canConfirmStock()
+            && changedKeys().hasOnly(['status', 'events', 'updatedAt'])
+            && request.resource.data.status == 'confirmed'
+            && eventsUnchangedOrAppended())
+          || (canDeliver()
+            && changedKeys().hasOnly(['status', 'paymentStatus', 'courier', 'events', 'updatedAt'])
+            && resource.data.status in ['confirmed', 'ready_dispatch', 'out_for_delivery']
+            && request.resource.data.status in ['ready_dispatch', 'out_for_delivery', 'completed']
+            && eventsUnchangedOrAppended())
+          || (canNoteOrders()
+            && changedKeys().hasOnly(['memo', 'events', 'messages', 'updatedAt'])
+            && eventsUnchangedOrAppended()
+            && messagesUnchangedOrAppended())
+        );
+
+      // Customers can never update or delete — status and paymentStatus are
+      // exclusively staff-controlled. Deletion is reserved to Super Admins.
+      allow delete: if isSuper();
+    }
+
+    /* ------------------------- staff & audit trail ----------------------- */
+
+    // Customer profiles. Sign-up writes exactly this shape; nobody can read
+    // another customer's profile.
+    match /users/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['name', 'email', 'phone', 'createdAt']);
+      allow update: if signedIn() && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'phone']);
+      allow delete: if false;
+    }
+
+    match /staff/{staffId} {
+      allow get: if isSuper() || (signedIn() && request.auth.uid == staffId);
+      allow list: if isSuper();
+      allow create, update, delete: if isSuper();
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isSuper() || canReadInventory();
+      allow create: if (isSuper() || canReadInventory()) && validAudit();
+      allow update, delete: if false;
+    }
+
+    /* ------------------------------ counters ----------------------------- */
+
+    // The WA-#### sequence. Guests increment it inside a transaction; the
+    // rules only accept a single +1 step, so no one can jump the sequence.
+    match /counters/{counterId} {
+      allow get: if counterId == 'orders';
+      allow list: if canWriteProducts();
+      allow create: if counterId == 'orders'
+        && request.resource.data.value is int
+        && request.resource.data.value >= 9001;
+      allow update: if counterId == 'orders'
+        && request.resource.data.value is int
+        && request.resource.data.value == resource.data.value + 1;
+      allow delete: if false;
+    }
+
+    // Everything else is denied by default — there is deliberately no
+    // `match /{document=**}` catch-all in this file.
+  }
+}

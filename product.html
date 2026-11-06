@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#faf8ff">
+  <title>Produit — NovaTech Cameroun</title>
+  <meta name="description" content="Fiche produit NovaTech : conditions Neuf, Open Box et Reconditionné A+, prix FCFA, stock Douala & Yaoundé, commande via WhatsApp.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/product.css">
+</head>
+<body>
+  <a class="sr-only" href="#main">Aller au contenu</a>
+  <div id="app-header"></div>
+
+  <main class="page-main" id="main">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Fil d'Ariane" id="breadcrumb">
+        <a href="index.html" data-i18n="nav.home">Accueil</a>
+        <span class="material-symbols-outlined">chevron_right</span>
+        <a href="catalog.html" data-i18n="nav.catalog">Catalogue</a>
+        <span class="material-symbols-outlined">chevron_right</span>
+        <span id="crumb-current">Produit</span>
+      </nav>
+
+      <div id="pdp-root"></div>
+
+      <section class="pdp-specs" id="specs-host"></section>
+      <section id="bundle-host"></section>
+      <section class="pdp-related" id="related-host"></section>
+    </div>
+  </main>
+
+  <div class="pdp-bar" id="pdp-bar" aria-hidden="true">
+    <div class="pdp-bar__media" id="bar-media"></div>
+    <div class="pdp-bar__copy">
+      <span class="pdp-bar__name" id="bar-name"></span>
+      <span class="pdp-bar__price" id="bar-price"></span>
+    </div>
+    <button class="btn btn--soft" type="button" data-bar-wish aria-label="Ajouter aux favoris">
+      <span class="material-symbols-outlined" id="bar-wish-icon">favorite</span>
+    </button>
+    <button class="btn" type="button" id="bar-add" data-i18n="product.addToCart">Ajouter au panier</button>
+  </div>
+
+  <div class="sheet sheet--center" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="lightbox-title">
+    <div class="sheet__head">
+      <h2 class="sheet__title" id="lightbox-title">Aperçu</h2>
+      <button class="icon-btn icon-btn--sm" type="button" data-sheet-close aria-label="Fermer">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="sheet__body">
+      <div class="lightbox"><div class="lightbox__stage" id="lightbox-stage"></div></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="guide-sheet" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="guide-title">
+    <div class="sheet__handle"></div>
+    <div class="sheet__head">
+      <h2 class="sheet__title" id="guide-title" data-i18n="product.gradingGuide">Guide des états</h2>
+      <button class="icon-btn icon-btn--sm" type="button" data-sheet-close aria-label="Fermer">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="sheet__body">
+      <div class="notice notice--info">
+        <span class="material-symbols-outlined">verified</span>
+        <span data-i18n="product.gradingNote">Chaque appareil est testé sur 32 points au showroom avant remise.</span>
+      </div>
+      <div class="condition-grid" style="grid-template-columns:1fr; margin-top:12px">
+        <div class="condition-tile" style="cursor:default">
+          <span class="condition-tile__name" data-i18n="condition.new">Neuf scellé</span>
+          <span class="condition-tile__note" data-i18n="condition.newNote">Sous blister d'usine</span>
+        </div>
+        <div class="condition-tile" style="cursor:default">
+          <span class="condition-tile__name" data-i18n="condition.openBox">Open Box</span>
+          <span class="condition-tile__note" data-i18n="condition.openBoxNote">Certifié 100 %</span>
+        </div>
+        <div class="condition-tile" style="cursor:default">
+          <span class="condition-tile__name" data-i18n="condition.refurb">Reconditionné A+</span>
+          <span class="condition-tile__note" data-i18n="condition.refurbNote">État impeccable</span>
+        </div>
+      </div>
+    </div>
+    <div class="sheet__foot">
+      <button class="btn btn--block" type="button" data-sheet-close data-i18n="common.close">Fermer</button>
+    </div>
+  </div>
+
+  <div id="app-nav"></div>
+  <div id="app-footer"></div>
+
+  <script type="module" src="js/pages/product.js"></script>
+</body>
+</html>

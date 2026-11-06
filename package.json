@@ -1,0 +1,16 @@
+{
+  "name": "novatech-storefront",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NovaTech Cameroun — premium electronics storefront (static HTML/CSS/JS + Firebase).",
+  "scripts": {
+    "serve": "python -m http.server 5500",
+    "seed": "node seed/seed.js",
+    "seed:orders": "node seed/seed.js --with-demo-orders",
+    "emulators": "firebase emulators:start --project demo-novatech"
+  },
+  "devDependencies": {
+    "firebase-admin": "^12.6.0"
+  }
+}
